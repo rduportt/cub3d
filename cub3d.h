@@ -10,6 +10,7 @@
 # include "math.h"
 # define HAUTEUR 1000
 # define LONGUEUR 1000
+# define ESC_KEY 65307
 
 typedef struct s_img
 {
