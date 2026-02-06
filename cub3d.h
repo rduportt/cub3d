@@ -104,6 +104,19 @@ typedef struct s_data
     t_img       img;
 }   t_data;
 
+typedef struct s_config
+{
+    char    *we_texture;
+    char    *ws_texure;
+    char    *wn_texutre;
+    char    *ww_texture;
+    int        color_floor;
+    int        color_celling;
+    char    **map;
+    int        map_lenght;
+    int        map_width;
+} t_config;
+
 
 void  raycasting(t_data *data);
 void draw_ver_line(t_img *img, int x, int y1, int y2, int color);
