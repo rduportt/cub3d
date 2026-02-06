@@ -9,8 +9,12 @@ int	err(char *str)
 
 void	init_config(t_config *config)
 {
-	config->color_celling = -1;
-	config->color_floor = -1;
+	config->color_celling[0] = -1;
+	config->color_celling[1] = -1;
+	config->color_celling[2] = -1;
+	config->color_floor[0] = -1;
+	config->color_floor[1] = -1;
+	config->color_floor[2] = -1;
 	config->map = NULL;
 	config->we_texture = NULL;
 	config->wn_texutre = NULL;
@@ -19,10 +23,81 @@ void	init_config(t_config *config)
 	config->map_lenght = -1;
 	config->map_width = -1;
 }
-
-void	parse_line()
+void	check_config(t_config *config)
 {
+	int	i;
+	int	j;
 
+	if (!config->ws_texure || !config->ww_texture || !config->we_texture || !config->wn_texutre)
+	{
+		err("error: missing texture !\n");
+		exit(1);
+	}
+	if (config->color_celling[0] == -1 ||
+		config->color_celling[1] == -1 ||
+		config->color_celling[2] == -1 ||
+		config->color_floor[0] == -1 ||
+		config->color_floor[1] == -1 ||
+		config->color_floor[2] == -1)
+	{
+		err("error: missing colors !\n");
+		exit(1);
+	}
+}
+
+char	*parse_texture(char *line)
+{
+	char	*tx;
+	int		i;
+
+	i = 3;
+	while(line[i] == ' ')
+		i++;
+	tx = ft_strdup(&line[i]);
+	tx[ft_strlen(tx - 1)] == '\0';
+	return (tx);
+}
+
+void	parse_color(char *line, int *color)
+{
+	int	i;
+
+	i = 2;
+	while (line[i] == ' ')
+		i++;
+	color[0] = ft_atoi(&line[i]);
+	while(line[i] == ' ' && line[i] != ",")
+		i++;
+	i++;
+	color[1] = ft_atoi(&line[i]);
+	while(line[i] == ' ' && line[i] != ",")
+		i++;
+	i++;
+	color[2] = ft_atoi(&line[i]);
+
+	if (color[0] < 0 || color[0] > 255 || color[1] < 0 || color[1] > 255 || color[2] < 0 || color[2] > 255)
+	{
+		err("error: wrong rgb values\n");
+		exit(1);
+	}
+}
+
+void	parse_line(char *line, t_config *config)
+{
+	if(ft_strlen(line) <= 1)
+		return;
+	if (ft_strncmp(line,"NO ", 3) == 0)
+		config->wn_texutre = parse_config(line);
+	if (ft_strncmp(line,"SO ", 3) == 0)
+		config->ws_texure = parse_config(line);
+	if (ft_strncmp(line,"WE ", 3) == 0)
+		config->ww_texture = parse_config(line);
+	if (ft_strncmp(line,"EA ", 3) == 0)
+		config->we_texture = parse_config(line);
+	if (ft_strncmp(line, "F ", 2) == 0)
+		parse_color(line, config->color_floor);
+	if (ft_strncmp(line, "C ", 2) == 0)
+		parse_color(line, config->color_celling);
 }
 
 int	is_map_line(char *line, int has_a_player)
@@ -30,9 +105,11 @@ int	is_map_line(char *line, int has_a_player)
 	int	i;
 
 	i = 0;
+	if(ft_strlen(line) <= 1)
+		return (0);
 	while(line[i])
 	{
-		if ((line[i] < '0' && line[i] > '9' || line[i] == ' '))
+		if ((line[i] == '0' || line[i] == '1' || line[i] == ' '))
 		{
 			i++;
 			continue;
@@ -42,6 +119,8 @@ int	is_map_line(char *line, int has_a_player)
 			i++;
 			has_a_player++;
 		}
+		else if (line[i] == '\n')
+			break;
 		else
 			return (0);
 	}
@@ -116,6 +195,12 @@ t_config	pars_data(t_config config)
 			free(line);
 			break;
 		}
-		parse_line(line, &config, &map_started);
+		else if(map_started == 0)
+			parse_line(line, &config);
+		else
+		{
+			 err("error: please put params in right order");
+			 exit(0);
+		}
 	}
 }
