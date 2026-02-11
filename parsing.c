@@ -20,14 +20,46 @@ void	init_config(t_config *config)
 	config->wn_texutre = NULL;
 	config->ws_texure = NULL;
 	config->ww_texture = NULL;
-	config->map_lenght = -1;
-	config->map_width = -1;
 }
+
+int	get_height_map(char **map)
+{
+	int	i;
+
+	i = 0;
+	while (map[i])
+		i++;
+	return (i);
+}
+
+void	check_map(char **map)
+{
+	int	i;
+	int	j;
+	int	player_i;
+	int	player_j;
+	int	height;
+	char	**map_copy;
+
+	height = get_height_map(map);
+	map_copy = malloc(sizeof(char*) * height + 1);
+	i = 0;
+	player_in_map(map);
+	while (map[i])
+	{
+		map_copy[i] = ft_strdup(map[i]);
+		i++;
+	}
+
+	flood_fill(player_i, player_j);
+}
+
 void	check_config(t_config *config)
 {
 	int	i;
 	int	j;
 
+	player_in_map(config->map);
 	if (!config->ws_texure || !config->ww_texture || !config->we_texture || !config->wn_texutre)
 	{
 		err("error: missing texture !\n");
@@ -43,6 +75,12 @@ void	check_config(t_config *config)
 		err("error: missing colors !\n");
 		exit(1);
 	}
+	if (!config->map)
+	{
+		err("error: no map structur !\n");
+		exit(1);
+	}
+		check_map(config->map);
 }
 
 char	*parse_texture(char *line)
@@ -100,7 +138,7 @@ void	parse_line(char *line, t_config *config)
 		parse_color(line, config->color_celling);
 }
 
-int	is_map_line(char *line, int has_a_player)
+int	is_map_line(char *line)
 {
 	int	i;
 
@@ -109,15 +147,10 @@ int	is_map_line(char *line, int has_a_player)
 		return (0);
 	while(line[i])
 	{
-		if ((line[i] == '0' || line[i] == '1' || line[i] == ' '))
+		if ((line[i] == '0' || line[i] == '1' || line[i] == ' ' || line[i] == 'N' || line[i] == 'E' || line[i] == 'S' || line[i] == 'W'))
 		{
 			i++;
 			continue;
-		}
-		else if (line[i] == 'N' || line[i] == 'E' || line[i] == 'S' || line[i] == 'W')
-		{
-			i++;
-			has_a_player++;
 		}
 		else if (line[i] == '\n')
 			break;
@@ -127,15 +160,39 @@ int	is_map_line(char *line, int has_a_player)
 	return (1);
 }
 
+void	player_in_map(char **map)
+{
+	int	count;
+	int	i;
+	int	j;
+
+	count = 0;
+	i = 0;
+	j = 0;
+	while (map[i])
+	{
+		while(map[i][j])
+		{
+			if (map[i][j] == 'N' || map[i][j] == 'E' || map[i][j] == 'S' || map[i][j] == 'W')
+				count++;
+			j++;
+		}
+		i++;
+	}
+	if (count != 1)
+	{
+		err("error: no player or too many players on the map !\n");
+		exit(1);
+	}
+}
+
 char	**parse_map(char *first_line, int fd)
 {
 	int		i;
 	char **map;
 	char *line;
-	int	has_a_player;
 	int	map_size;
 
-	has_a_player = 0;
 	i = 0;
 	map_size = 100;
 	map = malloc(sizeof(char*) * map_size);
@@ -148,7 +205,7 @@ char	**parse_map(char *first_line, int fd)
 			free(line);
 			break;
 		}
-		if (is_map_line(line, &has_a_player))
+		if (is_map_line(line))
 		{
 			if (i >= map_size)
 			{
@@ -163,11 +220,6 @@ char	**parse_map(char *first_line, int fd)
 			exit(0);
 		}
 		free(line);
-	}
-	if (has_a_player == 0 || has_a_player > 1)
-	{
-		return (err("only one player is allowed"));
-		exit(0);
 	}
 	map[i] == NULL;
 	return (map);
