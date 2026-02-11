@@ -3,7 +3,7 @@
 int	err(char *str)
 {
 	while (*str)
-		write(2, ++str, 1);
+		write(2, str++, 1);
 	return (1);
 }
 
@@ -40,9 +40,11 @@ void	check_map(char **map)
 	int	player_j;
 	int	height;
 	char	**map_copy;
-
+	
+	player_i = 0;
+	player_j = 0;
 	height = get_height_map(map);
-	map_copy = malloc(sizeof(char*) * height + 1);
+	map_copy = malloc(sizeof(char*) * (height + 1));
 	i = 0;
 	player_in_map(map);
 	while (map[i])
@@ -50,15 +52,50 @@ void	check_map(char **map)
 		map_copy[i] = ft_strdup(map[i]);
 		i++;
 	}
+	map_copy[i] = NULL;
+	i = 0;
+	while (map_copy[i])
+	{
+		j = 0;
+		while (map_copy[i][j])
+		{
+			if (map_copy[i][j] == 'N' || map_copy[i][j] == 'E' || map_copy[i][j] == 'S' || map_copy[i][j] == 'W')
+			{
+				player_i = i;
+				player_j = j;
+			}
+			j++;
+		}
+		i++;
+	}
+	flood_fill(player_i, player_j, height, map_copy);
+	i = 0;
+	while (map_copy[i])
+		free(map_copy[i++]);
+	free(map_copy);
+}
 
-	flood_fill(player_i, player_j);
+void	flood_fill(int i, int j, int height, char ** map_copy)
+{
+	if (i < 0 || i >= height || j < 0 || !map_copy[i][j] || map_copy[i][j] == '\n' || map_copy[i][j] == ' ')
+	{
+		err("error: map not closed !\n");
+		exit(1);
+	}
+
+	if (map_copy[i][j] == '1' || map_copy[i][j] == 'X')
+		return;	
+	
+	map_copy[i][j] = 'X';
+
+	flood_fill(i + 1, j, height, map_copy);
+	flood_fill(i, j + 1, height, map_copy);
+	flood_fill(i - 1, j, height, map_copy);
+	flood_fill(i, j - 1, height, map_copy);
 }
 
 void	check_config(t_config *config)
 {
-	int	i;
-	int	j;
-
 	player_in_map(config->map);
 	if (!config->ws_texure || !config->ww_texture || !config->we_texture || !config->wn_texutre)
 	{
@@ -80,7 +117,7 @@ void	check_config(t_config *config)
 		err("error: no map structur !\n");
 		exit(1);
 	}
-		check_map(config->map);
+	check_map(config->map);
 }
 
 char	*parse_texture(char *line)
@@ -92,7 +129,7 @@ char	*parse_texture(char *line)
 	while(line[i] == ' ')
 		i++;
 	tx = ft_strdup(&line[i]);
-	tx[ft_strlen(tx - 1)] == '\0';
+	tx[ft_strlen(tx) - 1] = '\0';
 	return (tx);
 }
 
@@ -104,11 +141,11 @@ void	parse_color(char *line, int *color)
 	while (line[i] == ' ')
 		i++;
 	color[0] = ft_atoi(&line[i]);
-	while(line[i] == ' ' && line[i] != ",")
+	while(line[i] && line[i] != ',')
 		i++;
 	i++;
 	color[1] = ft_atoi(&line[i]);
-	while(line[i] == ' ' && line[i] != ",")
+	while(line[i] && line[i] != ',')
 		i++;
 	i++;
 	color[2] = ft_atoi(&line[i]);
@@ -125,13 +162,13 @@ void	parse_line(char *line, t_config *config)
 	if(ft_strlen(line) <= 1)
 		return;
 	if (ft_strncmp(line,"NO ", 3) == 0)
-		config->wn_texutre = parse_config(line);
+		config->wn_texutre = parse_texture(line);
 	if (ft_strncmp(line,"SO ", 3) == 0)
-		config->ws_texure = parse_config(line);
+		config->ws_texure = parse_texture(line);
 	if (ft_strncmp(line,"WE ", 3) == 0)
-		config->ww_texture = parse_config(line);
+		config->ww_texture = parse_texture(line);
 	if (ft_strncmp(line,"EA ", 3) == 0)
-		config->we_texture = parse_config(line);
+		config->we_texture = parse_texture(line);
 	if (ft_strncmp(line, "F ", 2) == 0)
 		parse_color(line, config->color_floor);
 	if (ft_strncmp(line, "C ", 2) == 0)
@@ -171,6 +208,7 @@ void	player_in_map(char **map)
 	j = 0;
 	while (map[i])
 	{
+		j = 0;
 		while(map[i][j])
 		{
 			if (map[i][j] == 'N' || map[i][j] == 'E' || map[i][j] == 'S' || map[i][j] == 'W')
@@ -198,7 +236,7 @@ char	**parse_map(char *first_line, int fd)
 	map = malloc(sizeof(char*) * map_size);
 
 	map[i++] = ft_strdup(first_line);
-	while(line = get_next_line(fd))
+	while((line = get_next_line(fd)))
 	{
 		if (ft_strlen(line) <= 1)
 		{
@@ -209,19 +247,19 @@ char	**parse_map(char *first_line, int fd)
 		{
 			if (i >= map_size)
 			{
-				map_size * 2;
+				map_size *= 2;
 				map = realloc(map, sizeof(char*) * map_size);
 			}
 			map[i++] = ft_strdup(line);
 		}
 		else
 		{
-			return(err("wrong map format try again !"));
-			exit(0);
+			err("error: wrong map format try again !\n");
+			exit(1);
 		}
 		free(line);
 	}
-	map[i] == NULL;
+	map[i] = NULL;
 	return (map);
 }
 
@@ -238,7 +276,7 @@ t_config	pars_data(t_config config)
 		err("cannot open the file");
 		exit(0);
 	}
-	while (line = get_next_line(fd))
+	while ((line = get_next_line(fd)))
 	{
 		if (is_map_line(line))
 		{
@@ -254,5 +292,94 @@ t_config	pars_data(t_config config)
 			 err("error: please put params in right order");
 			 exit(0);
 		}
+		free(line);
 	}
+	close(fd);
+	check_config(&config);
+	return (config);
+}
+
+#include "cub3d.h"
+
+void print_config(t_config *config)
+{
+    int i;
+    
+    printf("\n=== CONFIGURATION ===\n\n");
+    
+    // Textures
+    printf("Textures:\n");
+    printf("  NO: %s\n", config->wn_texutre ? config->wn_texutre : "NULL");
+    printf("  SO: %s\n", config->ws_texure ? config->ws_texure : "NULL");
+    printf("  WE: %s\n", config->we_texture ? config->we_texture : "NULL");
+    printf("  EA: %s\n", config->ww_texture ? config->ww_texture : "NULL");
+    // Couleurs
+    printf("\nColors:\n");
+    printf("  Floor (F):   R=%d, G=%d, B=%d\n", 
+           config->color_floor[0], 
+           config->color_floor[1], 
+           config->color_floor[2]);
+    printf("  Ceiling (C): R=%d, G=%d, B=%d\n", 
+           config->color_celling[0], 
+           config->color_celling[1], 
+           config->color_celling[2]);
+    
+    // Map
+    printf("\nMap:\n");
+    if (config->map)
+    {
+        i = 0;
+        while (config->map[i])
+        {
+            printf("  [%02d] %s", i, config->map[i]);
+            i++;
+        }
+        printf("\nMap height: %d lines\n", i);
+    }
+    else
+    {
+        printf("  NULL\n");
+    }
+    
+    printf("\n=== END ===\n\n");
+}
+
+int main(int argc, char **argv)
+{
+
+	(void)argc;
+	(void)**argv;
+    t_config config;
+    
+    printf("Starting parser...\n");
+    
+    // Initialiser config
+    init_config(&config);
+    
+    // Parser le fichier
+    config = pars_data(config);
+
+	// Afficher le résultat
+    print_config(&config);
+    
+    printf("✓ Parsing successful!\n");
+    
+    // Free (optionnel pour tester)
+    if (config.map)
+    {
+        int i = 0;
+        while (config.map[i])
+            free(config.map[i++]);
+        free(config.map);
+    }
+    if (config.wn_texutre)
+        free(config.wn_texutre);
+    if (config.ws_texure)
+        free(config.ws_texure);
+    if (config.we_texture)
+        free(config.we_texture);
+    if (config.ww_texture)
+        free(config.ww_texture);
+    
+    return (0);
 }
