@@ -35,6 +35,28 @@ void	exit_error(char *msg, t_config *config)
 	exit(1);
 }
 
+void	get_player(t_config *config)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	while (config->map[i])
+	{
+		j = 0;
+		while (config->map[i][j])
+		{
+			if (config->map[i][j] == 'N' || config->map[i][j] == 'E' || config->map[i][j] == 'S' || config->map[i][j] == 'W')
+			{
+				config->player_i = i;
+				config->player_j = j;
+			}
+			j++;
+		}
+		i++;
+	}
+}
+
 void	init_config(t_config *config)
 {
 	config->color_celling[0] = -1;
@@ -130,6 +152,23 @@ void	flood_fill(int i, int j, int height, char ** map_copy, t_config *config)
 	flood_fill(i, j - 1, height, map_copy, config);
 }
 
+void	check_colors(t_config *config)
+{
+	if (config->color_floor[0] < 0 ||
+		config->color_floor[0] > 255 ||
+		config->color_floor[1] < 0 ||
+		config->color_floor[1] > 255 ||
+		config->color_floor[2] < 0 ||
+		config->color_floor[2] > 255 ||
+		config->color_celling[0] < 0 ||
+		config->color_celling[0] > 255 ||
+		config->color_celling[1] < 0 ||
+		config->color_celling[1] > 255 ||
+		config->color_celling[2] < 0||
+		config->color_celling[2] > 255)
+		exit_error("error: bad RGB values\n", config);
+}
+
 void	check_config(t_config *config)
 {
 	if (!config->ws_texure || !config->ww_texture || !config->we_texture || !config->wn_texutre)
@@ -141,6 +180,7 @@ void	check_config(t_config *config)
 		config->color_floor[1] == -1 ||
 		config->color_floor[2] == -1)
 		exit_error("error: missing colors !\n", config);
+	check_colors(config);
 	if (!config->map)
 		exit_error("error: no map structur !\n", config);
 	check_map(config->map, config);
@@ -159,25 +199,54 @@ char	*parse_texture(char *line)
 	return (tx);
 }
 
-void	parse_color(char *line, int *color, t_config *config)
+void	parse_color(char *line, int *color)
 {
 	int	i;
+	int	count;
+	int	j;
 
 	i = 2;
 	while (line[i] == ' ')
 		i++;
+	count = 0;
+	j = i;
+	while (line[j] && line[j] != '\n')
+	{
+		if (line[j] == ',')
+			count++;
+		j++;
+	}
+	if (count != 2)
+		return;
+	while (line[i] == ' ')
+		i++;
+	if (!ft_isdigit(line[i]))
+		return;
 	color[0] = ft_atoi(&line[i]);
-	while(line[i] && line[i] != ',')
+	while (line[i] && ft_isdigit(line[i]))
 		i++;
+	while (line[i] == ' ')
+		i++;
+	if (line[i] != ',')
+		return;
 	i++;
+	while (line[i] == ' ')
+		i++;
+	if (!ft_isdigit(line[i]))
+		return;
 	color[1] = ft_atoi(&line[i]);
-	while(line[i] && line[i] != ',')
+	while (line[i] && ft_isdigit(line[i]))
 		i++;
+	while (line[i] == ' ')
+		i++;
+	if (line[i] != ',')
+		return;
 	i++;
+	while (line[i] == ' ')
+		i++;
+	if (!ft_isdigit(line[i]))
+		return;
 	color[2] = ft_atoi(&line[i]);
-
-	if (color[0] < 0 || color[0] > 255 || color[1] < 0 || color[1] > 255 || color[2] < 0 || color[2] > 255)
-		exit_error("error: wrong rgb values\n", config);
 }
 
 void	parse_line(char *line, t_config *config)
@@ -193,9 +262,9 @@ void	parse_line(char *line, t_config *config)
 	if (ft_strncmp(line,"EA ", 3) == 0)
 		config->we_texture = parse_texture(line);
 	if (ft_strncmp(line, "F ", 2) == 0)
-		parse_color(line, config->color_floor, config);
+		parse_color(line, config->color_floor);
 	if (ft_strncmp(line, "C ", 2) == 0)
-		parse_color(line, config->color_celling, config);
+		parse_color(line, config->color_celling);
 }
 
 int	is_map_line(char *line)
@@ -308,6 +377,7 @@ t_config	pars_data(t_config config)
 	}
 	close(fd);
 	check_config(&config);
+	get_player(&config);
 	return (config);
 }
 
@@ -352,7 +422,6 @@ void print_config(t_config *config)
     {
         printf("  NULL\n");
     }
-    
     printf("\n=== END ===\n\n");
 }
 
