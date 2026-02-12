@@ -7,6 +7,34 @@ int	err(char *str)
 	return (1);
 }
 
+void	free_config(t_config *config)
+{
+	int	i;
+
+	i = 0;
+	if (config->map)
+	{
+		while (config->map[i])
+			free(config->map[i++]);
+		free(config->map);
+	}
+	if (config->we_texture)
+		free(config->we_texture);
+	if (config->ww_texture)
+		free(config->ww_texture);
+	if (config->wn_texutre)
+		free(config->wn_texutre);
+	if (config->ws_texure)
+		free(config->ws_texure);
+}
+
+void	exit_error(char *msg, t_config *config)
+{
+	err(msg);
+	free_config(config);
+	exit(1);
+}
+
 void	init_config(t_config *config)
 {
 	config->color_celling[0] = -1;
@@ -32,7 +60,7 @@ int	get_height_map(char **map)
 	return (i);
 }
 
-void	check_map(char **map)
+void	check_map(char **map, t_config *config)
 {
 	int	i;
 	int	j;
@@ -41,12 +69,12 @@ void	check_map(char **map)
 	int	height;
 	char	**map_copy;
 	
+	player_in_map(map, config);
 	player_i = 0;
 	player_j = 0;
 	height = get_height_map(map);
 	map_copy = malloc(sizeof(char*) * (height + 1));
 	i = 0;
-	player_in_map(map);
 	while (map[i])
 	{
 		map_copy[i] = ft_strdup(map[i]);
@@ -68,56 +96,54 @@ void	check_map(char **map)
 		}
 		i++;
 	}
-	flood_fill(player_i, player_j, height, map_copy);
+	flood_fill(player_i, player_j, height, map_copy, config);
 	i = 0;
 	while (map_copy[i])
 		free(map_copy[i++]);
 	free(map_copy);
 }
 
-void	flood_fill(int i, int j, int height, char ** map_copy)
+void	free_map_copy(char **map_copy)
+{
+	int	i;
+
+	i = 0;
+	while (map_copy[i])
+		free(map_copy[i++]);
+	free(map_copy);
+}
+
+void	flood_fill(int i, int j, int height, char ** map_copy, t_config *config)
 {
 	if (i < 0 || i >= height || j < 0 || !map_copy[i][j] || map_copy[i][j] == '\n' || map_copy[i][j] == ' ')
 	{
-		err("error: map not closed !\n");
-		exit(1);
+		free_map_copy(map_copy);
+		exit_error("error: map not closed !\n", config);
 	}
-
 	if (map_copy[i][j] == '1' || map_copy[i][j] == 'X')
 		return;	
-	
 	map_copy[i][j] = 'X';
 
-	flood_fill(i + 1, j, height, map_copy);
-	flood_fill(i, j + 1, height, map_copy);
-	flood_fill(i - 1, j, height, map_copy);
-	flood_fill(i, j - 1, height, map_copy);
+	flood_fill(i + 1, j, height, map_copy, config);
+	flood_fill(i, j + 1, height, map_copy, config);
+	flood_fill(i - 1, j, height, map_copy, config);
+	flood_fill(i, j - 1, height, map_copy, config);
 }
 
 void	check_config(t_config *config)
 {
-	player_in_map(config->map);
 	if (!config->ws_texure || !config->ww_texture || !config->we_texture || !config->wn_texutre)
-	{
-		err("error: missing texture !\n");
-		exit(1);
-	}
+		exit_error("error: missing texture !\n",config);
 	if (config->color_celling[0] == -1 ||
 		config->color_celling[1] == -1 ||
 		config->color_celling[2] == -1 ||
 		config->color_floor[0] == -1 ||
 		config->color_floor[1] == -1 ||
 		config->color_floor[2] == -1)
-	{
-		err("error: missing colors !\n");
-		exit(1);
-	}
+		exit_error("error: missing colors !\n", config);
 	if (!config->map)
-	{
-		err("error: no map structur !\n");
-		exit(1);
-	}
-	check_map(config->map);
+		exit_error("error: no map structur !\n", config);
+	check_map(config->map, config);
 }
 
 char	*parse_texture(char *line)
@@ -133,7 +159,7 @@ char	*parse_texture(char *line)
 	return (tx);
 }
 
-void	parse_color(char *line, int *color)
+void	parse_color(char *line, int *color, t_config *config)
 {
 	int	i;
 
@@ -151,10 +177,7 @@ void	parse_color(char *line, int *color)
 	color[2] = ft_atoi(&line[i]);
 
 	if (color[0] < 0 || color[0] > 255 || color[1] < 0 || color[1] > 255 || color[2] < 0 || color[2] > 255)
-	{
-		err("error: wrong rgb values\n");
-		exit(1);
-	}
+		exit_error("error: wrong rgb values\n", config);
 }
 
 void	parse_line(char *line, t_config *config)
@@ -170,9 +193,9 @@ void	parse_line(char *line, t_config *config)
 	if (ft_strncmp(line,"EA ", 3) == 0)
 		config->we_texture = parse_texture(line);
 	if (ft_strncmp(line, "F ", 2) == 0)
-		parse_color(line, config->color_floor);
+		parse_color(line, config->color_floor, config);
 	if (ft_strncmp(line, "C ", 2) == 0)
-		parse_color(line, config->color_celling);
+		parse_color(line, config->color_celling, config);
 }
 
 int	is_map_line(char *line)
@@ -197,7 +220,7 @@ int	is_map_line(char *line)
 	return (1);
 }
 
-void	player_in_map(char **map)
+void	player_in_map(char **map, t_config *config)
 {
 	int	count;
 	int	i;
@@ -218,13 +241,10 @@ void	player_in_map(char **map)
 		i++;
 	}
 	if (count != 1)
-	{
-		err("error: no player or too many players on the map !\n");
-		exit(1);
-	}
+		exit_error("error: no player or too many players on the map !\n", config);
 }
 
-char	**parse_map(char *first_line, int fd)
+char	**parse_map(char *first_line, int fd, t_config *config)
 {
 	int		i;
 	char **map;
@@ -241,7 +261,7 @@ char	**parse_map(char *first_line, int fd)
 		if (ft_strlen(line) <= 1)
 		{
 			free(line);
-			break;
+			continue;
 		}
 		if (is_map_line(line))
 		{
@@ -254,8 +274,8 @@ char	**parse_map(char *first_line, int fd)
 		}
 		else
 		{
-			err("error: wrong map format try again !\n");
-			exit(1);
+			free(line);
+			exit_error("error: invalid content after map !\n", config);
 		}
 		free(line);
 	}
@@ -272,26 +292,18 @@ t_config	pars_data(t_config config)
 	map_started = 0;
 	fd = open("cube3d.cub", O_RDONLY);
 	if (fd < 0)
-	{
-		err("cannot open the file");
-		exit(0);
-	}
+		exit_error("cannot open the file", &config);
 	while ((line = get_next_line(fd)))
 	{
 		if (is_map_line(line))
 		{
 			map_started = 1;
-			config.map = parse_map(line, fd);
+			config.map = parse_map(line, fd, &config);
 			free(line);
 			break;
 		}
 		else if(map_started == 0)
 			parse_line(line, &config);
-		else
-		{
-			 err("error: please put params in right order");
-			 exit(0);
-		}
 		free(line);
 	}
 	close(fd);
