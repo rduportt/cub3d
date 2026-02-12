@@ -13,7 +13,7 @@
 NAME		= cub3D
 
 # Sources
-SRCS		= parsing.c
+SRCS		= parsing.c main.c raycasting.c
 
 OBJS		= $(SRCS:.c=.o)
 
@@ -27,7 +27,8 @@ LIBFT		= $(LIBFT_DIR)/libft.a
 # Compilation flags
 CC			= cc
 CFLAGS		= -Wall -Wextra -Werror -g
-INCLUDES	= -I. -I$(LIBFT_DIR) -I$(GNL_DIR)
+INCLUDES	= -I. -I$(LIBFT_DIR) -I$(GNL_DIR) -I./minilibx-linux
+MLX_FLAG	= -L./minilibx-linux -lmlx -lX11 -lXext -lm -L$(LIBFT_DIR) -lft -g
 
 # GNL files
 GNL_SRCS	= $(GNL_DIR)/get_next_line_bonus.c \
@@ -44,7 +45,7 @@ all: $(LIBFT) $(NAME)
 
 $(NAME): $(OBJS) $(GNL_OBJS) $(LIBFT)
 	@echo "$(GREEN)Linking $(NAME)...$(RESET)"
-	@$(CC) $(CFLAGS) $(OBJS) $(GNL_OBJS) $(LIBFT) -o $(NAME)
+	@$(CC) $(CFLAGS) $(OBJS) $(GNL_OBJS) $(MLX_FLAG) -o $(NAME)
 	@echo "$(GREEN)✓ $(NAME) created successfully!$(RESET)"
 
 %.o: %.c

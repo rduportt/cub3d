@@ -438,7 +438,7 @@ int main(int argc, char **argv)
     init_config(&config);
     
     // Parser le fichier
-    config = pars_data(config);
+    config = pars_data(config, argv[1]);
 
 	// Afficher le résultat
     print_config(&config);
