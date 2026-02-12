@@ -136,6 +136,8 @@ void raycasting(t_data *data)
 			ray.stepY = 1;
 			ray.sideDistY = (ray.mapY + 1.0 - data->player.posY) * ray.deltaDistY;
 		}
+		if(data->config.worldMap[ray.mapY][ray.mapX] == 'N' || data->config.worldMap[ray.mapY][ray.mapX] == 'S' || data->config.worldMap[ray.mapY][ray.mapX] == 'E' || data->config.worldMap[ray.mapY][ray.mapX] == 'W')
+			data->config.worldMap[ray.mapY][ray.mapX] = '0';
 		while(ray.hit == 0)
 		{
 			if(ray.sideDistX < ray.sideDistY)
@@ -180,8 +182,6 @@ void raycasting(t_data *data)
 				else
 					ray.orientation = 3; // EST
 			}
-			if(data->config.worldMap[ray.mapY][ray.mapX] == 'N' || data->config.worldMap[ray.mapY][ray.mapX] == 'S' || data->config.worldMap[ray.mapY][ray.mapX] == 'E' || data->config.worldMap[ray.mapY][ray.mapX] == 'W')
-				data->config.worldMap[ray.mapY][ray.mapX] = '0';
 			ray.texNum = ((data->config.worldMap[ray.mapY][ray.mapX] - '0') - 1) + ray.orientation;
 			if(ray.side == 0)
 				ray.wallX = data->player.posY + ray.perpWallDist * ray.rayDirY;

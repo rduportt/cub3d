@@ -116,6 +116,7 @@ typedef struct s_config
     char    **worldMap;
 	int		player_i;
 	int		player_j;
+	char	player_direction;
 } t_config;
 
 typedef struct s_data
