@@ -12,11 +12,11 @@ void	free_config(t_config *config)
 	int	i;
 
 	i = 0;
-	if (config->map)
+	if (config->worldMap)
 	{
-		while (config->map[i])
-			free(config->map[i++]);
-		free(config->map);
+		while (config->worldMap[i])
+			free(config->worldMap[i++]);
+		free(config->worldMap);
 	}
 	if (config->we_texture)
 		free(config->we_texture);
@@ -41,12 +41,12 @@ void	get_player(t_config *config)
 	int	j;
 
 	i = 0;
-	while (config->map[i])
+	while (config->worldMap[i])
 	{
 		j = 0;
-		while (config->map[i][j])
+		while (config->worldMap[i][j])
 		{
-			if (config->map[i][j] == 'N' || config->map[i][j] == 'E' || config->map[i][j] == 'S' || config->map[i][j] == 'W')
+			if (config->worldMap[i][j] == 'N' || config->worldMap[i][j] == 'E' || config->worldMap[i][j] == 'S' || config->worldMap[i][j] == 'W')
 			{
 				config->player_i = i;
 				config->player_j = j;
@@ -65,7 +65,7 @@ void	init_config(t_config *config)
 	config->color_floor[0] = -1;
 	config->color_floor[1] = -1;
 	config->color_floor[2] = -1;
-	config->map = NULL;
+	config->worldMap = NULL;
 	config->we_texture = NULL;
 	config->wn_texutre = NULL;
 	config->ws_texure = NULL;
@@ -181,9 +181,9 @@ void	check_config(t_config *config)
 		config->color_floor[2] == -1)
 		exit_error("error: missing colors !\n", config);
 	check_colors(config);
-	if (!config->map)
+	if (!config->worldMap)
 		exit_error("error: no map structur !\n", config);
-	check_map(config->map, config);
+	check_map(config->worldMap, config);
 }
 
 char	*parse_texture(char *line)
@@ -352,14 +352,14 @@ char	**parse_map(char *first_line, int fd, t_config *config)
 	return (map);
 }
 
-t_config	pars_data(t_config config)
+t_config	pars_data(t_config config, char *argv)
 {
 	int		fd;
 	char	*line;
 	int		map_started;
 
 	map_started = 0;
-	fd = open("cube3d.cub", O_RDONLY);
+	fd = open(argv, O_RDONLY);
 	if (fd < 0)
 		exit_error("cannot open the file", &config);
 	while ((line = get_next_line(fd)))
@@ -367,7 +367,7 @@ t_config	pars_data(t_config config)
 		if (is_map_line(line))
 		{
 			map_started = 1;
-			config.map = parse_map(line, fd, &config);
+			config.worldMap = parse_map(line, fd, &config);
 			free(line);
 			break;
 		}
@@ -408,12 +408,12 @@ void print_config(t_config *config)
     
     // Map
     printf("\nMap:\n");
-    if (config->map)
+    if (config->worldMap)
     {
         i = 0;
-        while (config->map[i])
+        while (config->worldMap[i])
         {
-            printf("  [%02d] %s", i, config->map[i]);
+            printf("  [%02d] %s", i, config->worldMap[i]);
             i++;
         }
         printf("\nMap height: %d lines\n", i);
@@ -446,12 +446,12 @@ int main(int argc, char **argv)
     printf("✓ Parsing successful!\n");
     
     // Free (optionnel pour tester)
-    if (config.map)
+    if (config.worldMap)
     {
         int i = 0;
-        while (config.map[i])
-            free(config.map[i++]);
-        free(config.map);
+        while (config.worldMap[i])
+            free(config.worldMap[i++]);
+        free(config.worldMap);
     }
     if (config.wn_texutre)
         free(config.wn_texutre);
