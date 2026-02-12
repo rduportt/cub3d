@@ -50,6 +50,7 @@ void	get_player(t_config *config)
 			{
 				config->player_i = i;
 				config->player_j = j;
+				config->player_direction = config->worldMap[i][j];
 			}
 			j++;
 		}
@@ -423,44 +424,4 @@ void print_config(t_config *config)
         printf("  NULL\n");
     }
     printf("\n=== END ===\n\n");
-}
-
-int main(int argc, char **argv)
-{
-
-	(void)argc;
-	(void)**argv;
-    t_config config;
-    
-    printf("Starting parser...\n");
-    
-    // Initialiser config
-    init_config(&config);
-    
-    // Parser le fichier
-    config = pars_data(config, argv[1]);
-
-	// Afficher le résultat
-    print_config(&config);
-    
-    printf("✓ Parsing successful!\n");
-    
-    // Free (optionnel pour tester)
-    if (config.worldMap)
-    {
-        int i = 0;
-        while (config.worldMap[i])
-            free(config.worldMap[i++]);
-        free(config.worldMap);
-    }
-    if (config.wn_texutre)
-        free(config.wn_texutre);
-    if (config.ws_texure)
-        free(config.ws_texure);
-    if (config.we_texture)
-        free(config.we_texture);
-    if (config.ww_texture)
-        free(config.ww_texture);
-    
-    return (0);
 }
