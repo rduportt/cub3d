@@ -107,17 +107,18 @@ typedef struct	s_camera
 
 typedef struct s_config
 {
-    char    *we_texture;
-    char    *ws_texure;
-    char    *wn_texutre;
-    char    *ww_texture;
-    int        color_floor[3];
-    int        color_celling[3];
-    char    **worldMap;
+	char	*we_texture;
+	char	*ws_texure;
+	char	*wn_texutre;
+	char	*ww_texture;
+	int		color_floor[3];
+	int		color_celling[3];
+	char	**worldMap;
 	int		player_i;
 	int		player_j;
 	char	player_direction;
-} t_config;
+	int		height;
+}	t_config;
 
 typedef struct s_data
 {
@@ -135,12 +136,13 @@ typedef struct s_data
 	int			texture;
 }   t_data;
 
-
-
+// Raycasting
 void		raycasting(t_data *data);
-void 		draw_ver_line(t_img *img, int x, int y1, int y2, int color);
-void 		clear_screen(t_img *img);
-void 		print_config(t_config *config);
+void		draw_ver_line(t_img *img, int x, int y1, int y2, int color);
+void		clear_screen(t_img *img);
+
+// Parsing
+void		print_config(t_config *config);
 t_config	pars_data(t_config config, char *argv);
 char		**parse_map(char *first_line, int fd, t_config *config);
 void		player_in_map(char **map, t_config *config);
@@ -148,16 +150,30 @@ int			is_map_line(char *line);
 void		parse_line(char *line, t_config *config);
 void		parse_color(char *line, int *color);
 char		*parse_texture(char *line);
+void		skip_spaces(char *line, int *i);
+int			count_commas(char *line, int start);
+void		handle_map_line(char ***map, int *i, int *map_size, char *line);
+void		process_line(char *line, t_config *config, int *map_started,
+				int fd);
+
+// Config checks
 void		check_config(t_config *config);
-void		flood_fill(int i, int j, int height, char ** map_copy, t_config *config);
+void		check_colors(t_config *config);
+void		flood_fill(int i, int j, char **map_copy, t_config *config);
 void		free_map_copy(char **map_copy);
 void		check_map(char **map, t_config *config);
 int			get_height_map(char **map);
 void		init_config(t_config *config);
+void		get_player(t_config *config);
+
+// Error handling and cleanup
 void		exit_error(char *msg, t_config *config);
 void		free_config(t_config *config);
 int			err(char *str);
 
-
+// Main hooks
+int			close_window(t_img *img);
+int			handle_keypress(int keycode, t_data *data);
+int			game_loop(t_data *data);
 
 #endif  
