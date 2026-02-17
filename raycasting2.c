@@ -72,6 +72,7 @@ void	hit_wall(t_data *data, t_raycasting *ray)
 
 void	dda(t_data *data, t_raycasting *ray)
 {
+	is_player(data, ray);
 	check_wall(data, ray);
 	is_player(data, ray);
 	hit_wall(data, ray);

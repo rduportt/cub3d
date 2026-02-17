@@ -44,11 +44,11 @@ void	init_data(t_data *data, t_config config, char *texture_files[4])
 
 	i = 0;
 	data->texture = 1;
-	data->player.pos_x = config.player_j;
-	data->player.pos_y = config.player_i;
+	data->player.pos_x = config.player_j + 0.5;
+	data->player.pos_y = config.player_i + 0.5;
 	init_player_direction(data, config);
 	init_camera_plane(data, config);
-	data->player.move_speed = 0.15;
+	data->player.move_speed = 0.10;
 	data->player.rot_speed = 0.05;
 	while (++i < 4)
 	{
