@@ -12,6 +12,30 @@
 
 #include "cub3d.h"
 
+void	init_player_direction(t_data *data, t_config config)
+{
+	if (config.player_direction == 'N')
+	{
+		data->player.dir_x = 0;
+		data->player.dir_y = -1;
+	}
+	else if (config.player_direction == 'S')
+	{
+		data->player.dir_x = 0;
+		data->player.dir_y = 1;
+	}
+	else if (config.player_direction == 'E')
+	{
+		data->player.dir_x = -1;
+		data->player.dir_y = 0;
+	}
+	else
+	{
+		data->player.dir_x = 1;
+		data->player.dir_y = 0;
+	}
+}
+
 void	key_right(t_data *data)
 {
 	double	old_dir_x;
@@ -56,7 +80,7 @@ int	handle_keypress(int keycode, t_data *data)
 		data->texture %= 2;
 	}
 	if (keycode == ESC_KEY)
-		close_window(&data->img);
+		close_window(data);
 	if (keycode == KEY_W)
 		key_w(data);
 	if (keycode == KEY_S)

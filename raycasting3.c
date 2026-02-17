@@ -27,8 +27,6 @@ void	texture_vertical_wall(t_data *data,
 		ray->tex_pos += ray->step;
 		ray->color = data->textures[ray->tex_num][data->tex_width
 			* ray->tex_y + ray->tex_x];
-		if (ray->side == 1)
-			ray->color = (ray->color >> 1) & 8355711;
 		data->buffer[c->y][c->x] = ray->color;
 	}
 }

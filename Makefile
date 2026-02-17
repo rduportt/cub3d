@@ -3,82 +3,120 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: your_login <your_login@student.42.fr>     +#+  +:+       +#+         #
+#    By: votre_nom <votre_email@student.42.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2026/02/13 00:00:00 by your_login       #+#    #+#              #
-#    Updated: 2026/02/13 00:00:00 by your_login      ###   ########.fr        #
+#    Created: 2025/02/17 15:22:00 by user              #+#    #+#              #
+#    Updated: 2025/02/17 15:22:00 by user             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME        = cub3D
+NAME = cub3D
 
-# Sources
-SRCS        = parsing.c parsing2.c parsing3.c parsing4.c parsing5.c \
-              main.c raycasting1.c raycasting2.c raycasting3.c utils.c \
-			  inputs.c inputs2.c
-OBJS        = $(SRCS:.c=.o)
+CC = gcc
+CFLAGS = -Wall -Wextra -Werror -I. -I./libft -I./get_next_line -I./minilibx-linux
+MLX_FLAGS = -L./minilibx-linux -lmlx -lXext -lX11 -lm
 
-# Directories
-LIBFT_DIR   = libft
-GNL_DIR     = get_next_line
-MLX_DIR     = minilibx-linux
+# Fichiers sources principaux
+SRCS = main.c \
+       parsing.c parsing2.c parsing3.c parsing4.c parsing5.c \
+       inputs.c inputs2.c \
+       raycasting1.c raycasting2.c raycasting3.c \
+       utils.c
 
-# Libraries
-LIBFT       = $(LIBFT_DIR)/libft.a
-MLX         = $(MLX_DIR)/libmlx.a
+# Fichiers de get_next_line
+GNL_SRCS = get_next_line/get_next_line_bonus.c \
+           get_next_line/get_next_line_utils_bonus.c
 
-# Compilation flags
-CC          = cc
-CFLAGS      = -Wall -Wextra -Werror -g
-INCLUDES    = -I. -I$(LIBFT_DIR) -I$(GNL_DIR) -I$(MLX_DIR)
-MLX_FLAG    = -L$(MLX_DIR) -lmlx -lX11 -lXext -lm -L$(LIBFT_DIR) -lft
+# Fichiers sources de la libft
+LIBFT_SRCS = libft/ft_atoi.c \
+             libft/ft_bzero.c \
+             libft/ft_calloc.c \
+             libft/ft_isalnum.c \
+             libft/ft_isalpha.c \
+             libft/ft_isascii.c \
+             libft/ft_isdigit.c \
+             libft/ft_isprint.c \
+             libft/ft_itoa.c \
+             libft/ft_memchr.c \
+             libft/ft_memcmp.c \
+             libft/ft_memcpy.c \
+             libft/ft_memmove.c \
+             libft/ft_memset.c \
+             libft/ft_putchar_fd.c \
+             libft/ft_putendl_fd.c \
+             libft/ft_putnbr_fd.c \
+             libft/ft_putstr_fd.c \
+             libft/ft_split.c \
+             libft/ft_strchr.c \
+             libft/ft_strdup.c \
+             libft/ft_striteri.c \
+             libft/ft_strjoin.c \
+             libft/ft_strlcat.c \
+             libft/ft_strlcpy.c \
+             libft/ft_strlen.c \
+             libft/ft_strmapi.c \
+             libft/ft_strncmp.c \
+             libft/ft_strnstr.c \
+             libft/ft_strrchr.c \
+             libft/ft_strtrim.c \
+             libft/ft_substr.c \
+             libft/ft_tolower.c \
+             libft/ft_toupper.c
 
-# GNL files
-GNL_SRCS    = $(GNL_DIR)/get_next_line_bonus.c \
-              $(GNL_DIR)/get_next_line_utils_bonus.c
-GNL_OBJS    = $(GNL_SRCS:.c=.o)
+# Tous les fichiers sources
+ALL_SRCS = $(SRCS) $(GNL_SRCS)
 
-# Colors
-GREEN       = \033[0;32m]
-RED         = \033[0;31m]
-YELLOW      = \033[0;33m]
-RESET       = \033[0m]
+# Fichiers objets
+OBJS_DIR = objs
+OBJS = $(addprefix $(OBJS_DIR)/, $(ALL_SRCS:.c=.o))
+LIBFT_OBJS = $(addprefix $(OBJS_DIR)/libft/, $(notdir $(LIBFT_SRCS:.c=.o)))
+LIBFT_A = libft/libft.a
 
-# Rules
-all: $(LIBFT) $(MLX) $(NAME)
+# Règle principale
+all: $(NAME)
 
-$(NAME): $(OBJS) $(GNL_OBJS) $(LIBFT) $(MLX)
-	@echo "$(GREEN)Linking $(NAME)...$(RESET)"
-	@$(CC) $(CFLAGS) $(OBJS) $(GNL_OBJS) $(MLX_FLAG) -o $(NAME)
-	@echo "$(GREEN)✓ $(NAME) created successfully!$(RESET)"
+# Création du dossier des objets
+$(OBJS_DIR):
+	mkdir -p $(OBJS_DIR)
+	mkdir -p $(OBJS_DIR)/get_next_line
+	mkdir -p $(OBJS_DIR)/libft
 
-%.o: %.c
-	@echo "$(YELLOW)Compiling $<...$(RESET)"
-	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+# Compilation de la libft
+$(LIBFT_A): $(LIBFT_OBJS)
+	ar rcs $(LIBFT_A) $(LIBFT_OBJS)
 
-$(LIBFT):
-	@echo "$(GREEN)Building libft...$(RESET)"
-	@make -C $(LIBFT_DIR)
-	@echo "$(GREEN)✓ libft ready!$(RESET)"
+# Compilation des objets de la libft
+$(OBJS_DIR)/libft/%.o: libft/%.c | $(OBJS_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-$(MLX):
-	@echo "$(GREEN)Building minilibx...$(RESET)"
-	@make -C $(MLX_DIR)
-	@echo "$(GREEN)✓ minilibx ready!$(RESET)"
+# Compilation des objets de get_next_line
+$(OBJS_DIR)/get_next_line/%.o: get_next_line/%.c | $(OBJS_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
+# Compilation des objets principaux
+$(OBJS_DIR)/%.o: %.c | $(OBJS_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compilation de la minilibx
+mlx:
+	make -C ./minilibx-linux
+
+# Édition des liens
+$(NAME): mlx $(LIBFT_A) $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) $(LIBFT_A) -o $(NAME) $(MLX_FLAGS)
+
+# Nettoyage des fichiers objets
 clean:
-	@echo "$(RED)Cleaning object files...$(RESET)"
-	@rm -f $(OBJS) $(GNL_OBJS)
-	@make -C $(LIBFT_DIR) clean
-	@make -C $(MLX_DIR) clean
-	@echo "$(RED)✓ Object files cleaned!$(RESET)"
+	rm -rf $(OBJS_DIR)
+	make -C ./minilibx-linux clean
 
+# Nettoyage complet
 fclean: clean
-	@echo "$(RED)Removing executables and libraries...$(RESET)"
-	@rm -f $(NAME)
-	@make -C $(LIBFT_DIR) fclean
-	@echo "$(RED)✓ All cleaned!$(RESET)"
+	rm -f $(NAME)
+	rm -f $(LIBFT_A)
 
+# Reconstruction complète
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re mlx
+.SECONDARY: $(OBJS) $(LIBFT_OBJS)

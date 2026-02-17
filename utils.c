@@ -68,3 +68,22 @@ void	draw_ver_line(t_img *img, t_coordinates c, int color)
 		y++;
 	}
 }
+
+int	free_data(t_data *data, int j)
+{
+	int	i;
+
+	i = 0;
+	while (i < HAUTEUR)
+		free(data->buffer[i++]);
+	free(data->buffer);
+	free_config(&data->config);
+	i = 0;
+	while (i < j)
+		mlx_destroy_image(data->img.mlx, data->tex_img[i++]);
+	mlx_destroy_image(data->img.mlx, data->img.img);
+	mlx_destroy_window(data->img.mlx, data->img.win);
+	mlx_destroy_display(data->img.mlx);
+	free(data->img.mlx);
+	return (-1);
+}

@@ -12,12 +12,22 @@
 
 #include "cub3d.h"
 
-int	close_window(t_img *img)
+int	close_window(t_data *data)
 {
-	mlx_destroy_image(img->mlx, img->img);
-	mlx_destroy_window(img->mlx, img->win);
-	mlx_destroy_display(img->mlx);
-	free(img->mlx);
+	int	i;
+
+	i = 0;
+	while (i < HAUTEUR)
+		free(data->buffer[i++]);
+	free(data->buffer);
+	free_config(&data->config);
+	i = 0;
+	while (i < 4)
+		mlx_destroy_image(data->img.mlx, data->tex_img[i++]);
+	mlx_destroy_image(data->img.mlx, data->img.img);
+	mlx_destroy_window(data->img.mlx, data->img.win);
+	mlx_destroy_display(data->img.mlx);
+	free(data->img.mlx);
 	exit(0);
 }
 

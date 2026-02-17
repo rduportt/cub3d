@@ -137,7 +137,7 @@ typedef struct s_data
 	t_player	player;
 	t_img		img;
 	t_config	config;
-	uint32_t	buffer[HAUTEUR][LONGUEUR];
+	uint32_t	**buffer;
 	uint32_t	*textures[8];
 	void		*tex_img[8];
 	int			tex_width;
@@ -154,7 +154,7 @@ void		draw_ver_line(t_img *img, t_coordinates c, int color);
 void		clear_screen(t_img *img);
 int			create_rgb(int r, int g, int b);
 void		draw_buffer(t_data *data);
-int			close_window(t_img *img);
+int			close_window(t_data *data);
 void		key_w(t_data *data);
 void		key_s(t_data *data);
 void		key_a(t_data *data);
@@ -205,12 +205,13 @@ void		init_config(t_config *config);
 void		get_player(t_config *config);
 
 // Error handling and cleanup
+int			free_data(t_data *data, int j);
 void		exit_error(char *msg, t_config *config);
 void		free_config(t_config *config);
 int			err(char *str);
 
 // Main hooks
-int			close_window(t_img *img);
+void		init_player_direction(t_data *data, t_config config);
 int			handle_keypress(int keycode, t_data *data);
 int			game_loop(t_data *data);
 
