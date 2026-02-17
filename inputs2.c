@@ -36,6 +36,30 @@ void	init_player_direction(t_data *data, t_config config)
 	}
 }
 
+void	init_camera_plane(t_data *data, t_config config)
+{
+	if (config.player_direction == 'N')
+	{
+		data->player.camera_plane_x = -0.66;
+		data->player.camera_plane_y = 0;
+	}
+	else if (config.player_direction == 'S')
+	{
+		data->player.camera_plane_x = 0.66;
+		data->player.camera_plane_y = 0;
+	}
+	else if (config.player_direction == 'E')
+	{
+		data->player.camera_plane_x = 0;
+		data->player.camera_plane_y = 0.66;
+	}
+	else
+	{
+		data->player.camera_plane_x = 0;
+		data->player.camera_plane_y = -0.66;
+	}
+}
+
 void	key_right(t_data *data)
 {
 	double	old_dir_x;

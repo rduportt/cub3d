@@ -38,30 +38,6 @@ void	init_buffer(t_data *data)
 	}
 }
 
-void	init_camera_plane(t_data *data, t_config config)
-{
-	if (config.player_direction == 'N')
-	{
-		data->player.camera_plane_x = -0.66;
-		data->player.camera_plane_y = 0;
-	}
-	else if (config.player_direction == 'S')
-	{
-		data->player.camera_plane_x = 0.66;
-		data->player.camera_plane_y = 0;
-	}
-	else if (config.player_direction == 'E')
-	{
-		data->player.camera_plane_x = 0;
-		data->player.camera_plane_y = 0.66;
-	}
-	else
-	{
-		data->player.camera_plane_x = 0;
-		data->player.camera_plane_y = -0.66;
-	}
-}
-
 void	init_data(t_data *data, t_config config, char *texture_files[4])
 {
 	int	i;
@@ -128,7 +104,7 @@ int	main(int argc, char **argv)
 	raycasting(&data);
 	mlx_hook(data.img.win, KeyPress, KeyPressMask, handle_keypress, &data);
 	mlx_hook(data.img.win, DestroyNotify,
-		StructureNotifyMask, close_window, &data.img);
+		StructureNotifyMask, close_window, &data);
 	mlx_loop_hook(data.img.mlx, game_loop, &data);
 	mlx_loop(data.img.mlx);
 }

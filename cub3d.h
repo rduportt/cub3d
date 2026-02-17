@@ -211,6 +211,7 @@ void		free_config(t_config *config);
 int			err(char *str);
 
 // Main hooks
+void		init_camera_plane(t_data *data, t_config config);
 void		init_player_direction(t_data *data, t_config config);
 int			handle_keypress(int keycode, t_data *data);
 int			game_loop(t_data *data);
