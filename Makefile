@@ -14,7 +14,8 @@ NAME        = cub3D
 
 # Sources
 SRCS        = parsing.c parsing2.c parsing3.c parsing4.c parsing5.c \
-              main.c raycasting.c
+              main.c raycasting1.c raycasting2.c raycasting3.c utils.c \
+			  inputs.c inputs2.c
 OBJS        = $(SRCS:.c=.o)
 
 # Directories

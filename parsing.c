@@ -81,7 +81,7 @@ void	process_line(char *line, t_config *config, int *map_started, int fd)
 	if (is_map_line(line))
 	{
 		*map_started = 1;
-		config->worldMap = parse_map(line, fd, config);
+		config->map = parse_map(line, fd, config);
 	}
 	else if (*map_started == 0)
 		parse_line(line, config);

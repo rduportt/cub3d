@@ -24,11 +24,11 @@ void	free_config(t_config *config)
 	int	i;
 
 	i = 0;
-	if (config->worldMap)
+	if (config->map)
 	{
-		while (config->worldMap[i])
-			free(config->worldMap[i++]);
-		free(config->worldMap);
+		while (config->map[i])
+			free(config->map[i++]);
+		free(config->map);
 	}
 	if (config->we_texture)
 		free(config->we_texture);
@@ -53,18 +53,18 @@ void	get_player(t_config *config)
 	int	j;
 
 	i = 0;
-	while (config->worldMap[i])
+	while (config->map[i])
 	{
 		j = 0;
-		while (config->worldMap[i][j])
+		while (config->map[i][j])
 		{
-			if (config->worldMap[i][j] == 'N' || config->worldMap[i][j] == 'E'
-				|| config->worldMap[i][j] == 'S'
-				|| config->worldMap[i][j] == 'W')
+			if (config->map[i][j] == 'N' || config->map[i][j] == 'E'
+				|| config->map[i][j] == 'S'
+				|| config->map[i][j] == 'W')
 			{
 				config->player_i = i;
 				config->player_j = j;
-				config->player_direction = config->worldMap[i][j];
+				config->player_direction = config->map[i][j];
 			}
 			j++;
 		}
@@ -83,7 +83,7 @@ void	init_config(t_config *config)
 	config->height = -1;
 	config->player_i = -1;
 	config->player_j = -1;
-	config->worldMap = NULL;
+	config->map = NULL;
 	config->we_texture = NULL;
 	config->wn_texutre = NULL;
 	config->ws_texure = NULL;

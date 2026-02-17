@@ -25,9 +25,9 @@ void	check_config(t_config *config)
 		|| config->color_floor[2] == -1)
 		exit_error("error: missing colors !\n", config);
 	check_colors(config);
-	if (!config->worldMap)
+	if (!config->map)
 		exit_error("error: no map structur !\n", config);
-	check_map(config->worldMap, config);
+	check_map(config->map, config);
 }
 
 char	*parse_texture(char *line)
