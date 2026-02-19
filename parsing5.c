@@ -53,3 +53,67 @@ int	is_map_line(char *line)
 	}
 	return (1);
 }
+
+int	is_cub(char *path)
+{
+	int	len;
+
+	len = ft_strlen(path);
+	if (len < 4)
+		return (0);
+	return (ft_strncmp(&path[len - 4], ".cub", 4) == 0);
+}
+
+t_config	pars_data(t_config config, char *argv)
+{
+	int		fd;
+	char	*line;
+	int		map_started;
+
+	map_started = 0;
+	if (!is_cub(argv))
+		exit_error("error: map must be a .cub file !\n", &config);
+	fd = open(argv, O_RDONLY);
+	if (fd < 0)
+		exit_error("cannot open the file", &config);
+	line = get_next_line(fd);
+	while (line)
+	{
+		process_line(line, &config, &map_started, fd);
+		free(line);
+		if (map_started)
+			break ;
+		line = get_next_line(fd);
+	}
+	close(fd);
+	if (map_started == 2)
+		exit_error("content after map !\n", &config);
+	check_config(&config);
+	get_player(&config);
+	return (config);
+}
+
+void	parse_color(char *line, int *color)
+{
+	int	i;
+	int	k;
+
+	i = 2;
+	skip_spaces(line, &i);
+	if (count_commas(line, i) != 2)
+		return ;
+	k = 0;
+	while (k < 3)
+	{
+		if (k > 0 && (line[i++] != ',' || !line[i]))
+			return ;
+		skip_spaces(line, &i);
+		if (!ft_isdigit(line[i]))
+			return ;
+		color[k] = ft_atoi(&line[i]);
+		while (line[i] && ft_isdigit(line[i]))
+			i++;
+		skip_spaces(line, &i);
+		k++;
+	}
+}

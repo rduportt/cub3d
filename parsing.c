@@ -48,7 +48,14 @@ void	handle_map_line(char ***map, int *i, int *map_size, char *line)
 	(*map)[(*i)++] = ft_strdup(line);
 }
 
-char	**parse_map(char *first_line, int fd, t_config *config)
+void	free_map(char **map, int i)
+{
+	while (i > 0)
+		free(map[--i]);
+	free(map);
+}
+
+char	**parse_map(char *first_line, int fd, int *has_extra)
 {
 	int		i;
 	char	**map;
@@ -66,8 +73,9 @@ char	**parse_map(char *first_line, int fd, t_config *config)
 			handle_map_line(&map, &i, &map_size, line);
 		else if (ft_strlen(line) > 1)
 		{
+			*has_extra = 1;
 			free(line);
-			exit_error("error: invalid content after map !\n", config);
+			break ;
 		}
 		free(line);
 		line = get_next_line(fd);
@@ -78,36 +86,18 @@ char	**parse_map(char *first_line, int fd, t_config *config)
 
 void	process_line(char *line, t_config *config, int *map_started, int fd)
 {
+	int	has_extra;
+
 	if (is_map_line(line))
 	{
+		has_extra = 0;
 		*map_started = 1;
-		config->map = parse_map(line, fd, config);
+		config->map = parse_map(line, fd, &has_extra);
+		if (has_extra)
+			*map_started = 2;
 	}
 	else if (*map_started == 0)
 		parse_line(line, config);
-}
-
-t_config	pars_data(t_config config, char *argv)
-{
-	int		fd;
-	char	*line;
-	int		map_started;
-
-	map_started = 0;
-	fd = open(argv, O_RDONLY);
-	if (fd < 0)
-		exit_error("cannot open the file", &config);
-	line = get_next_line(fd);
-	while (line)
-	{
-		process_line(line, &config, &map_started, fd);
-		free(line);
-		if (map_started)
-			break ;
-		line = get_next_line(fd);
-	}
-	close(fd);
-	check_config(&config);
-	get_player(&config);
-	return (config);
+	else
+		*map_started = 2;
 }

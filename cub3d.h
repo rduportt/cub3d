@@ -182,7 +182,7 @@ void		raycasting(t_data *data);
 // Parsing
 void		print_config(t_config *config);
 t_config	pars_data(t_config config, char *argv);
-char		**parse_map(char *first_line, int fd, t_config *config);
+char		**parse_map(char *first_line, int fd, int *has_extra);
 void		player_in_map(char **map, t_config *config);
 int			is_map_line(char *line);
 void		parse_line(char *line, t_config *config);

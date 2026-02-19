@@ -12,11 +12,24 @@
 
 #include "cub3d.h"
 
+int	is_xpm(char *path)
+{
+	int	len;
+
+	len = ft_strlen(path);
+	if (len < 4)
+		return (0);
+	return (ft_strncmp(&path[len - 4], ".xpm", 4) == 0);
+}
+
 void	check_config(t_config *config)
 {
 	if (!config->ws_texure || !config->ww_texture
 		|| !config->we_texture || !config->wn_texutre)
 		exit_error("error: missing texture !\n", config);
+	if (!is_xpm(config->ws_texure) || !is_xpm(config->ww_texture)
+		|| !is_xpm(config->we_texture) || !is_xpm(config->wn_texutre))
+		exit_error("error: invalid texture format, must be .xpm !\n", config);
 	if (config->color_celling[0] == -1
 		|| config->color_celling[1] == -1
 		|| config->color_celling[2] == -1
@@ -65,27 +78,3 @@ int	count_commas(char *line, int start)
 	return (count);
 }
 
-void	parse_color(char *line, int *color)
-{
-	int	i;
-	int	k;
-
-	i = 2;
-	skip_spaces(line, &i);
-	if (count_commas(line, i) != 2)
-		return ;
-	k = 0;
-	while (k < 3)
-	{
-		if (k > 0 && (line[i++] != ',' || !line[i]))
-			return ;
-		skip_spaces(line, &i);
-		if (!ft_isdigit(line[i]))
-			return ;
-		color[k] = ft_atoi(&line[i]);
-		while (line[i] && ft_isdigit(line[i]))
-			i++;
-		skip_spaces(line, &i);
-		k++;
-	}
-}
