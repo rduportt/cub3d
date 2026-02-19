@@ -55,7 +55,7 @@ typedef struct s_img
 	int		bits;
 	int		size_line;
 	int		endian;
-}t_img;
+}	t_img;
 
 typedef struct s_player
 {
@@ -68,7 +68,7 @@ typedef struct s_player
 	double	camera_x;
 	double	move_speed;
 	double	rot_speed;
-}t_player;
+}	t_player;
 
 typedef struct s_raycasting
 {
@@ -107,7 +107,7 @@ typedef struct s_raycasting
 	int			step_y;
 	int			hit;
 	int			side;
-}t_raycasting;
+}	t_raycasting;
 
 typedef struct s_camera
 {
@@ -115,7 +115,7 @@ typedef struct s_camera
 	int	draw_start;
 	int	draw_end;
 	int	color;
-}t_camera;
+}	t_camera;
 
 typedef struct s_config
 {

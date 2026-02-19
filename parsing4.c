@@ -77,4 +77,3 @@ int	count_commas(char *line, int start)
 	}
 	return (count);
 }
-
