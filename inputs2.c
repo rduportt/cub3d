@@ -95,27 +95,3 @@ void	key_left(t_data *data)
 	data->player.camera_plane_y = old_plane_x * sin(data->player.rot_speed)
 		+ data->player.camera_plane_y * cos(data->player.rot_speed);
 }
-
-int	handle_keypress(int keycode, t_data *data)
-{
-	if (keycode == 113)
-	{
-		data->texture++;
-		data->texture %= 2;
-	}
-	if (keycode == ESC_KEY)
-		close_window(data);
-	if (keycode == KEY_W)
-		key_w(data);
-	if (keycode == KEY_S)
-		key_s(data);
-	if (keycode == KEY_A)
-		key_a(data);
-	if (keycode == KEY_D)
-		key_d(data);
-	if (keycode == KEY_RIGHT)
-		key_right(data);
-	if (keycode == KEY_LEFT)
-		key_left(data);
-	return (0);
-}

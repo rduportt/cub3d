@@ -14,6 +14,14 @@
 
 int	game_loop(t_data *data)
 {
+	if (data->key_tab[KEY_W])
+		key_w(data);
+	if (data->key_tab[KEY_A])
+		key_a(data);
+	if (data->key_tab[KEY_S])
+		key_s(data);
+	if (data->key_tab[KEY_D])
+		key_d(data);
 	raycasting(data);
 	return (0);
 }
@@ -42,7 +50,7 @@ void	init_data(t_data *data, t_config config, char *texture_files[4])
 {
 	int	i;
 
-	i = 0;
+	i = -1;
 	data->texture = 1;
 	data->player.pos_x = config.player_j + 0.5;
 	data->player.pos_y = config.player_i + 0.5;
@@ -55,6 +63,9 @@ void	init_data(t_data *data, t_config config, char *texture_files[4])
 		data->textures[i] = NULL;
 		data->tex_img[i] = NULL;
 	}
+	i = -1;
+	while (++i < 256)
+		data->key_tab[i] = 0;
 	init_buffer(data);
 	texture_files[0] = config.ws_texure;
 	texture_files[1] = config.wn_texutre;
@@ -103,6 +114,8 @@ int	main(int argc, char **argv)
 		return (printf("error loading image\n"));
 	raycasting(&data);
 	mlx_hook(data.img.win, KeyPress, KeyPressMask, handle_keypress, &data);
+	mlx_hook(data.img.win, KeyRelease, KeyReleaseMask,
+		handle_keyrelease, &data);
 	mlx_hook(data.img.win, DestroyNotify,
 		StructureNotifyMask, close_window, &data);
 	mlx_loop_hook(data.img.mlx, game_loop, &data);

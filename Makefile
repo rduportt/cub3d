@@ -19,7 +19,7 @@ MLX_FLAGS = -L./minilibx-linux -lmlx -lXext -lX11 -lm
 # Fichiers sources principaux
 SRCS = main.c \
        parsing.c parsing2.c parsing3.c parsing4.c parsing5.c \
-       inputs.c inputs2.c \
+       inputs.c inputs2.c inputs3.c\
        raycasting1.c raycasting2.c raycasting3.c \
        utils.c
 

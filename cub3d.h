@@ -146,6 +146,7 @@ typedef struct s_data
 	int			tex_size_line[8];
 	int			tex_endian[8];
 	int			texture;
+	int			key_tab[256];
 }	t_data;
 
 // Raycasting
@@ -214,6 +215,7 @@ int			err(char *str);
 void		init_camera_plane(t_data *data, t_config config);
 void		init_player_direction(t_data *data, t_config config);
 int			handle_keypress(int keycode, t_data *data);
+int			handle_keyrelease(int keycode, t_data *data);
 int			game_loop(t_data *data);
 
 #endif  
